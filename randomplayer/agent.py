@@ -23,4 +23,3 @@ if __name__ == '__main__':
     b.process_move(move, 'B')
     b.print_board()
 
-
