@@ -97,7 +97,7 @@ def valor_max(movimento, alfa, beta, the_board, color, enemy_color):
     return v
 
 def decisao_minimax_alfa_beta(the_board, color, enemy_color):
-    new_board = copy.deepcopy(b)
+    new_board = copy.deepcopy(the_board)
     v = valor_max(None, INFINITO_NEGATIVO, INFINITO_POSITIVO, new_board, color, enemy_color)
 
     return v[MOVIMENTO]
