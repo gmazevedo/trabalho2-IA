@@ -39,8 +39,9 @@ def avalia(movimento, the_board, color, enemy_color, profundidade):
     pontos_peca = heuristica_pecas_posicao(new_board, color, enemy_color)
     pontos_movimento = heuristica_comparacao_movimentos(the_board, color, enemy_color)
     pontos_captura = heuristica_captura_aliado(the_board, enemy_color, movimento)
+    pontos_qtd_pecas_capturadas = heuristica_qtde_pecas_capturadas(the_board, color, movimento)
 
-    pontos = pontos_peca + pontos_movimento + pontos_captura
+    pontos = pontos_peca + pontos_movimento + pontos_captura + pontos_qtd_pecas_capturadas
 
     return (pontos, movimento, profundidade)
 

@@ -13,7 +13,7 @@ def heuristica_pecas_posicao(the_board, color, enemy_color):
 
             if the_board.tiles[l][c] == color:
                 pontos += valor_tabuleiro[l][c]
-                
+
             elif the_board.tiles[l][c] == enemy_color:
                 pontos -= valor_tabuleiro[l][c]
 
@@ -48,24 +48,31 @@ def heuristica_captura_aliado(the_board, enemy_color, movimento):
 def heuristica_pecas_centros(the_board, color):
     pontos = 0
 
-    #Ve que tem 
+    #Ve que tem
     for l in range(2, 6):
         for c in range(2, 6):
             if the_board.tiles[l][c] == color:
                 pontos += 1
             else:
                 pontos -= 1
-    
+
     return pontos
 
 #Não está sendo usada
 def heuristica_peca_cantos(the_board, color):
     pontos = 0
 
-    #Ve se tem 
+    #Ve se tem
     lista = [(0,0), (7,7), (0,7), (7,0)]
     for i in lista:
         if(the_board.tiles[i[0]][i[1]] == color):
             pontos += 1
 
     return pontos
+
+def heuristica_qtde_pecas_capturadas(the_board, color, movimento):
+    qtde_de_pecas_antes = the_board.piece_count[color]
+
+    the_board.process_move(movimento, color)
+
+    return the_board.piece_count[color] - qtde_de_pecas_antes
