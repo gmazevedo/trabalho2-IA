@@ -1,22 +1,24 @@
 MEIO = 15
+QUADRADO_X = -10
+PERIGOSO = -8
+POSICAO_ESTAVEL = 4
 
+CANTO_1 = 0
+CANTO_2 = 7
 
-valor_tabuleiro = [[4,-3,2,2,2,2,-3,4],
-                   [-8,-10,-1,-1,-1,-1,-10,-8],
-                   [2,-1,1,0,0,1,-1,2],
-                   [2,-1,0,1,1,2,-1,2],
-                   [2,-1,0,1,1,2,-1,2],
-                   [2,-1,1,0,0,1,-1,2],
-                   [-8,-10,-1,-1,-1,-1,-10,-8],
-                   [4,-3,2,2,2,2,-3,4]]
+#Posições estáveis iniciais
+posicoes_estaveis = [([False]*8) for i in range(8)]
+posicoes_estaveis[0][0] = True
+posicoes_estaveis[0][7] = True
+posicoes_estaveis[7][0] = True
+posicoes_estaveis[7][7] = True
 
-
-'''valor_tabuleiro = [[120,-20,5,5,20,-20,120],
-                   [-20,-40,-5,-5,-5,-5,-40,-20],
-                   [20,-5,MEIO,MEIO,MEIO,MEIO,-5,20],
-                   [5,-5,MEIO,MEIO,MEIO,MEIO,-5,-5],
-                   [5,-5,MEIO,MEIO,MEIO,MEIO,-5,-5],
-                   [20,-5,MEIO,MEIO,MEIO,MEIO,-5,20],
-                   [-20,-40,-5,-5,-5,-5,-40,-20],
-                   [120,-20,5,5,20,-20,120]]
-'''
+#Valor padrão das posições
+valor_tabuleiro = [[POSICAO_ESTAVEL,     PERIGOSO,  2, 2, 2, 2, PERIGOSO,  POSICAO_ESTAVEL],
+                   [PERIGOSO,QUADRADO_X,-1,-1,-1,-1, QUADRADO_X,PERIGOSO],
+                   [2,       -1,         1, 0, 0, 1, -1,        2],
+                   [2,       -1,         0, 1, 1, 2, -1,        2],
+                   [2,       -1,         0, 1, 1, 2, -1,        2],
+                   [2,       -1,         1, 0, 0, 1, -1,        2],
+                   [PERIGOSO,QUADRADO_X,-1,-1,-1,-1,QUADRADO_X,PERIGOSO],
+                   [POSICAO_ESTAVEL,     PERIGOSO,   2, 2, 2, 2,PERIGOSO,  POSICAO_ESTAVEL]]

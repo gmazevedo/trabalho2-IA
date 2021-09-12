@@ -1,11 +1,8 @@
-import random
 import copy
 import sys
-import pickle
 from datetime import datetime
 
-sys.path.append('./your_agent')
-from heuristicas import *
+from your_agent.heuristicas import *
 
 sys.path.append('..')  # i know this is a dirty hack but, you know, time...
 import board
@@ -20,17 +17,24 @@ bd = {}
 
 INFINITO_POSITIVO = float('inf')
 INFINITO_NEGATIVO = float('-inf')
+
+#Retorno do avanca
 VALOR             = 0
 MOVIMENTO         = 1
 PROFUNDIDADE      = 2
-CHAVE             = 3
+ESTAVEL           = 3
+
+#Limites para o teste de corte
+LIMITE_MAX = 50
+LIMITE_MIN = LIMITE_MAX - 1
+LIMITE_TEMPO = 1
 
 #Heurística
-def avalia(movimento, the_board, color, enemy_color, profundidade):
+def avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento):
     new_board = copy.deepcopy(the_board)
     
     if new_board.is_terminal_state():
-        pontos_peca = heuristica_pecas_posicao(new_board, color, enemy_color)
+        pontos_peca = heuristica_qtde_pecas_final(the_board, color, enemy_color)
         return (pontos_peca, movimento)
     
     #pontos_centro = heuristica_pecas_centros(new_board, color)
@@ -40,10 +44,16 @@ def avalia(movimento, the_board, color, enemy_color, profundidade):
     pontos_movimento = heuristica_comparacao_movimentos(the_board, color, enemy_color)
     pontos_captura = heuristica_captura_aliado(the_board, enemy_color, movimento)
     pontos_qtd_pecas_capturadas = heuristica_qtde_pecas_capturadas(the_board, color, movimento)
+    pontos_posicao_estavel = heuristica_posicao_estavel(movimento, posicoes_estaveis_movimento)
 
-    pontos = pontos_peca + pontos_movimento + pontos_captura + pontos_qtd_pecas_capturadas
+    if pontos_posicao_estavel != 0:
+        estavel = True
+    else:
+        estavel =False
 
-    return (pontos, movimento, profundidade)
+    pontos = pontos_peca + pontos_movimento + pontos_captura + pontos_qtd_pecas_capturadas + pontos_posicao_estavel
+
+    return (pontos, movimento, profundidade, estavel)
 
 #Profundidade
 def teste_corte(movimento, the_board, color, enemy_color, profundidade, start_time, limite):
@@ -60,18 +70,17 @@ def teste_corte(movimento, the_board, color, enemy_color, profundidade, start_ti
     duration = stop_time - start_time
     segundos = float(duration.total_seconds())
 
-    if(segundos > 1 or profundidade > limite):
+    if(segundos > LIMITE_TEMPO or profundidade > limite or the_board.is_terminal_state()):
         return True
 
     return False
 
 
-def valor_min(movimento, alfa, beta, the_board, color, enemy_color, start_time, profundidade):
-    LIMITE = 12
-    if teste_corte(movimento, the_board, color, enemy_color, profundidade, start_time, LIMITE):
-        return avalia(movimento, the_board, color, enemy_color, profundidade)
+def valor_min(movimento, alfa, beta, the_board, color, enemy_color, start_time, posicoes_estaveis_movimento, profundidade):
+    if teste_corte(movimento, the_board, color, enemy_color, profundidade, start_time, LIMITE_MIN):
+        return avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento)
 
-    v = [INFINITO_NEGATIVO, None, 0]
+    v = [INFINITO_NEGATIVO, None, 0, False]
 
     new_board = copy.deepcopy(the_board)
 
@@ -85,12 +94,13 @@ def valor_min(movimento, alfa, beta, the_board, color, enemy_color, start_time, 
         if pula_comparacao(proximo_movimento, new_board, color):
             continue
         
-        v_max = valor_max(proximo_movimento, alfa, beta, new_board, enemy_color, color, start_time, profundidade+1)
+        v_max = valor_max(proximo_movimento, alfa, beta, new_board, enemy_color, color, start_time, copy.deepcopy(posicoes_estaveis_movimento), profundidade+1)
 
         if min(v[VALOR], v_max[VALOR]) == v_max[VALOR]:
             v[VALOR] = v_max[VALOR]
             v[MOVIMENTO] = proximo_movimento
             v[PROFUNDIDADE] = v_max[PROFUNDIDADE]
+            v[ESTAVEL] = v_max[ESTAVEL]
 
         beta = min(beta, v[VALOR])
 
@@ -99,13 +109,12 @@ def valor_min(movimento, alfa, beta, the_board, color, enemy_color, start_time, 
     
     return v
 
-def valor_max(movimento, alfa, beta, the_board, color, enemy_color, start_time, profundidade=0):
-    LIMITE = 13
-    if teste_corte(movimento, the_board, color, enemy_color, profundidade, start_time, LIMITE):
-        return avalia(movimento, the_board, color, enemy_color, profundidade)
+def valor_max(movimento, alfa, beta, the_board, color, enemy_color, start_time, posicoes_estaveis_movimento, profundidade=0):
+    if teste_corte(movimento, the_board, color, enemy_color, profundidade, start_time, LIMITE_MAX):
+        return avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento)
         
 
-    v = [INFINITO_NEGATIVO, None, None]
+    v = [INFINITO_NEGATIVO, None, 0, False]
 
     new_board = copy.deepcopy(the_board)
 
@@ -118,12 +127,14 @@ def valor_max(movimento, alfa, beta, the_board, color, enemy_color, start_time, 
         if pula_comparacao(proximo_movimento, new_board, color):
             continue
 
-        v_min = valor_min(proximo_movimento, alfa, beta, new_board, enemy_color, color, start_time, profundidade+1)
+        v_min = valor_min(proximo_movimento, alfa, beta, new_board, enemy_color, color, start_time, copy.deepcopy(posicoes_estaveis_movimento), profundidade+1)
 
 
         if max(v[VALOR], v_min[VALOR]) == v_min[VALOR]:
             v[VALOR] = v_min[VALOR]
             v[MOVIMENTO] = proximo_movimento
+            v[PROFUNDIDADE] = v_min[PROFUNDIDADE]
+            v[ESTAVEL] = v_min[ESTAVEL]
         
         alfa = max(alfa, v[VALOR])
 
@@ -135,7 +146,10 @@ def valor_max(movimento, alfa, beta, the_board, color, enemy_color, start_time, 
 def decisao_minimax_alfa_beta(the_board, color, enemy_color):
     new_board = copy.deepcopy(the_board)
     start_time = datetime.now()
-    v = valor_max(None, INFINITO_NEGATIVO, INFINITO_POSITIVO, new_board, color, enemy_color, start_time, profundidade=0)
+    v = valor_max(None, INFINITO_NEGATIVO, INFINITO_POSITIVO, new_board, color, enemy_color, start_time, copy.deepcopy(posicoes_estaveis), profundidade=0)
+
+    if v[ESTAVEL]:
+        posicoes_estaveis[v[MOVIMENTO][0]][v[MOVIMENTO][1]] = True
 
     return v[MOVIMENTO]
 
