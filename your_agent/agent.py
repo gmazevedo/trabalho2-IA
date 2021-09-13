@@ -27,7 +27,7 @@ ESTAVEL           = 3
 #Limites para o teste de corte
 LIMITE_MAX = 50
 LIMITE_MIN = LIMITE_MAX - 1
-LIMITE_TEMPO = 1
+LIMITE_TEMPO = 4
 
 #Heurística
 def avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento):
@@ -41,7 +41,7 @@ def avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_esta
     #pontos_cantos = heuristica_peca_cantos(new_board, color)
 
     pontos_peca = heuristica_pecas_posicao(new_board, color, enemy_color)
-    pontos_movimento = heuristica_comparacao_movimentos(the_board, color, enemy_color)
+    pontos_mobilidade = heuristica_comparacao_mobilidade(the_board, color, enemy_color)
     pontos_captura = heuristica_captura_aliado(the_board, enemy_color, movimento)
     pontos_qtd_pecas_capturadas = heuristica_qtde_pecas_capturadas(the_board, color, movimento)
     pontos_posicao_estavel = heuristica_posicao_estavel(movimento, posicoes_estaveis_movimento)
@@ -51,9 +51,10 @@ def avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_esta
     else:
         estavel =False
 
-    pontos = pontos_peca + pontos_movimento + pontos_captura + pontos_qtd_pecas_capturadas + pontos_posicao_estavel
+    pontos = pontos_peca + pontos_mobilidade + pontos_captura + pontos_qtd_pecas_capturadas + pontos_posicao_estavel
 
     return (pontos, movimento, profundidade, estavel)
+
 
 #Profundidade
 def teste_corte(movimento, the_board, color, enemy_color, profundidade, start_time, limite):
@@ -109,6 +110,7 @@ def valor_min(movimento, alfa, beta, the_board, color, enemy_color, start_time, 
     
     return v
 
+
 def valor_max(movimento, alfa, beta, the_board, color, enemy_color, start_time, posicoes_estaveis_movimento, profundidade=0):
     if teste_corte(movimento, the_board, color, enemy_color, profundidade, start_time, LIMITE_MAX):
         return avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento)
@@ -143,15 +145,17 @@ def valor_max(movimento, alfa, beta, the_board, color, enemy_color, start_time, 
 
     return v
 
+
 def decisao_minimax_alfa_beta(the_board, color, enemy_color):
     new_board = copy.deepcopy(the_board)
     start_time = datetime.now()
     v = valor_max(None, INFINITO_NEGATIVO, INFINITO_POSITIVO, new_board, color, enemy_color, start_time, copy.deepcopy(posicoes_estaveis), profundidade=0)
 
     if v[ESTAVEL]:
-        posicoes_estaveis[v[MOVIMENTO][0]][v[MOVIMENTO][1]] = True
+        add_posicao_estavel(v[MOVIMENTO], posicoes_estaveis, mudar_valores=True)
 
     return v[MOVIMENTO]
+
 
 def make_move(the_board, color):
     """
@@ -173,6 +177,7 @@ def make_move(the_board, color):
     # a primeira jogada com as pretas.
     # Remova-o e coloque a sua implementacao da poda alpha-beta
     #return random.choice([(2, 3), (4, 5), (5, 4), (3, 2)])
+
 
 if __name__ == '__main__':
     b = board.Board()
