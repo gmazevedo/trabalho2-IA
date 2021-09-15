@@ -125,3 +125,15 @@ def add_posicao_estavel(movimento, posicoes_estaveis_posicao, mudar_valores=Fals
             if posicoes_estaveis_posicao[baixo][esq] or posicoes_estaveis_posicao[baixo][dir]:
                 posicoes_estaveis_posicao[baixo][c_movimento] = True
                 valor_tabuleiro[baixo][c_movimento] = POSICAO_ESTAVEL
+
+def verifica_add_posicao_estavel(movimento, posicoes_estaveis_posicao):
+    l_movimento = movimento[LINHA]
+    c_movimento = movimento[COLUNA]
+
+    #Posicao não é estável?
+    if not posicoes_estaveis_posicao[l_movimento][c_movimento]:
+        return False
+
+    add_posicao_estavel(movimento, posicoes_estaveis_posicao)
+
+    return True

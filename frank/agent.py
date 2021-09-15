@@ -1,11 +1,9 @@
-import copy
 import sys
 from datetime import datetime
 
 from frank.heuristicas import *
-from your_agent.dados import *
-sys.path.append('..')  # i know this is a dirty hack but, you know, time...
 
+sys.path.append('..')  # i know this is a dirty hack but, you know, time...
 import board
 
 bd = {}
@@ -31,7 +29,7 @@ LIMITE_MIN = LIMITE_MAX - 1
 LIMITE_TEMPO = 1
 
 #Heurística
-def avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento):
+def avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento, pontos_estavel):
     new_board = copy.deepcopy(the_board)
     
     if new_board.is_terminal_state():
@@ -45,14 +43,17 @@ def avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_esta
     pontos_mobilidade = heuristica_comparacao_mobilidade(the_board, color, enemy_color)
     pontos_captura = heuristica_captura_aliado(the_board, enemy_color, movimento)
     pontos_qtd_pecas_capturadas = heuristica_qtde_pecas_capturadas(the_board, color, movimento)
-    pontos_posicao_estavel = heuristica_posicao_estavel(movimento, posicoes_estaveis_movimento)
+    #pontos_posicao_estavel = heuristica_posicao_estavel(movimento, posicoes_estaveis_movimento)
 
+    '''
     if pontos_posicao_estavel != 0:
         estavel = True
     else:
         estavel =False
+    '''
+    estavel = False
 
-    pontos = pontos_peca + pontos_mobilidade + pontos_captura + pontos_qtd_pecas_capturadas + pontos_posicao_estavel
+    pontos = pontos_peca + pontos_mobilidade + pontos_captura + pontos_qtd_pecas_capturadas + pontos_estavel
 
     return (pontos, movimento, profundidade, estavel)
 
@@ -78,25 +79,34 @@ def teste_corte(movimento, the_board, color, enemy_color, profundidade, start_ti
     return False
 
 
-def valor_min(movimento, alfa, beta, the_board, color, enemy_color, start_time, posicoes_estaveis_movimento, profundidade):
+def valor_min(movimento, alfa, beta, the_board, color, enemy_color, start_time, posicoes_estaveis_movimento, pontos_estavel, profundidade):
     if teste_corte(movimento, the_board, color, enemy_color, profundidade, start_time, LIMITE_MIN):
-        return avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento)
+        return avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento, pontos_estavel)
 
     v = [INFINITO_NEGATIVO, None, 0, False]
 
     new_board = copy.deepcopy(the_board)
+
+    posicoes_estaveis_atual = copy.deepcopy(posicoes_estaveis_movimento)
+    adicionou_estavel = False
+    if movimento is not None:
+        adicionou_estavel, posicoes_estaveis_atual = novo_verifica_add_posicao_estavel(movimento, posicoes_estaveis_atual, new_board, color)
+
+    if adicionou_estavel:
+        novos_pontos_estavel = pontos_estavel + 100
+    else:
+        novos_pontos_estavel = pontos_estavel
 
     if movimento != None:
         new_board.process_move(movimento, color)
 
     sucessores = new_board.legal_moves(color)
 
-
     for proximo_movimento in sucessores:
         if pula_comparacao(proximo_movimento, new_board, color):
             continue
-        
-        v_max = valor_max(proximo_movimento, alfa, beta, new_board, enemy_color, color, start_time, copy.deepcopy(posicoes_estaveis_movimento), profundidade+1)
+
+        v_max = valor_max(proximo_movimento, alfa, beta, new_board, enemy_color, color, start_time, posicoes_estaveis_atual, novos_pontos_estavel, profundidade+1)
 
         if min(v[VALOR], v_max[VALOR]) == v_max[VALOR]:
             v[VALOR] = v_max[VALOR]
@@ -112,14 +122,24 @@ def valor_min(movimento, alfa, beta, the_board, color, enemy_color, start_time, 
     return v
 
 
-def valor_max(movimento, alfa, beta, the_board, color, enemy_color, start_time, posicoes_estaveis_movimento, profundidade=0):
+def valor_max(movimento, alfa, beta, the_board, color, enemy_color, start_time, posicoes_estaveis_movimento, pontos_estavel, profundidade=0):
     if teste_corte(movimento, the_board, color, enemy_color, profundidade, start_time, LIMITE_MAX):
-        return avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento)
+        return avalia(movimento, the_board, color, enemy_color, profundidade, posicoes_estaveis_movimento, pontos_estavel)
         
 
     v = [INFINITO_NEGATIVO, None, 0, False]
 
     new_board = copy.deepcopy(the_board)
+
+    posicoes_estaveis_atual = copy.deepcopy(posicoes_estaveis_movimento)
+    adicionou_estavel = False
+    if movimento is not None:
+        adicionou_estavel, posicoes_estaveis_atual = novo_verifica_add_posicao_estavel(movimento, posicoes_estaveis_atual, new_board, color)
+
+    if adicionou_estavel:
+        novos_pontos_estavel = pontos_estavel + 100
+    else:
+        novos_pontos_estavel = pontos_estavel
 
     if movimento != None:
         new_board.process_move(movimento, color)
@@ -130,7 +150,7 @@ def valor_max(movimento, alfa, beta, the_board, color, enemy_color, start_time, 
         if pula_comparacao(proximo_movimento, new_board, color):
             continue
 
-        v_min = valor_min(proximo_movimento, alfa, beta, new_board, enemy_color, color, start_time, copy.deepcopy(posicoes_estaveis_movimento), profundidade+1)
+        v_min = valor_min(proximo_movimento, alfa, beta, new_board, enemy_color, color, start_time, posicoes_estaveis_atual, novos_pontos_estavel, profundidade+1)
 
 
         if max(v[VALOR], v_min[VALOR]) == v_min[VALOR]:
@@ -148,12 +168,12 @@ def valor_max(movimento, alfa, beta, the_board, color, enemy_color, start_time, 
 
 
 def decisao_minimax_alfa_beta(the_board, color, enemy_color):
+    global posicoes_estaveis
     new_board = copy.deepcopy(the_board)
     start_time = datetime.now()
-    v = valor_max(None, INFINITO_NEGATIVO, INFINITO_POSITIVO, new_board, color, enemy_color, start_time, copy.deepcopy(posicoes_estaveis_y), profundidade=0)
+    v = valor_max(None, INFINITO_NEGATIVO, INFINITO_POSITIVO, new_board, color, enemy_color, start_time, copy.deepcopy(posicoes_estaveis), 0, profundidade=0)
 
-    if v[ESTAVEL]:
-        add_posicao_estavel(v[MOVIMENTO], posicoes_estaveis_y, mudar_valores=True)
+    x, posicoes_estaveis = novo_verifica_add_posicao_estavel(v[MOVIMENTO], posicoes_estaveis, new_board, color, print_valores=False)
 
     return v[MOVIMENTO]
 
@@ -172,6 +192,7 @@ def make_move(the_board, color):
 
     proximo_movimento = decisao_minimax_alfa_beta(the_board, color, enemy_color)
 
+    
     return proximo_movimento
 
     # o codigo abaixo apenas retorna um movimento aleatorio valido para

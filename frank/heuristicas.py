@@ -1,5 +1,5 @@
 import sys
-from your_agent.auxiliares import *
+from frank.auxiliares import *
 
 #Pontos:
 # * Cada posição do tabuleiro tem um valor, ver no arquivo dados.py
@@ -67,7 +67,7 @@ def heuristica_qtde_pecas_final(the_board, color, enemy_color):
 #Retorna 1000 se a posição é estável, 0 se não for.
 #Objetivo é fazer com que se jogue na maior quantidade
 #de posições estáveis possíveis
-'''def heuristica_posicao_estavel(movimento, posicoes_estaveis_posicao):
+def heuristica_posicao_estavel(movimento, posicoes_estaveis_posicao):
     l_movimento = movimento[LINHA]
     c_movimento = movimento[COLUNA]
 
@@ -77,7 +77,7 @@ def heuristica_qtde_pecas_final(the_board, color, enemy_color):
 
     add_posicao_estavel(movimento, posicoes_estaveis_posicao)
 
-    return 1000'''
+    return 1000
 
 #Retorna 1000 se a posição é estável, 0 se não for.
 #Objetivo é fazer com que se jogue na maior quantidade
