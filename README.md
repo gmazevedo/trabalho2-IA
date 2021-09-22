@@ -16,9 +16,12 @@ O objetivo do deste trabalho é explorar a implementação de poda alfa-beta (co
 > Foram usadas as seguintes estratégias de parada:
 - Limite de tempo: a execução da função é encerrada no momento que dura mais que 1 segundo.
 - Limite de profundidade: na busca do valor max, a profundidade máxima da busca é 50 e na busca do valor min, a profundidade máxima da busca é 49.
-## Melhorias feitas (?)
-> eventuais melhorias (quiescence search, singular extensions, etc);
 ## Decisões de projeto
-> decisões de projeto e dificuldades encontradas;
+A ideia era incluir mais heurísticas, como a verificação de "paredes" na hora de calcular o custo de uma jogada, porém não foi possível implementar pois não chegamos a um código funcional para isso. Também não foi feito nenhuma otimização, por conta da complexidade e também pelo tempo pouco disponível pelos integrantes para poder dedicar ao trabalho, o foco foi fazer o agente ser funcional.
 ## Bibliografia
-> bibliografia completa (incluindo sites).
+> Sites utilizados como base para implementação de estratégias.
+- Othello - Reversi : MC906 - Introdução à Inteligência Artificial  
+https://www.ic.unicamp.br/~rocha/teaching/2011s2/mc906/seminarios/2011s2-mc906-seminario-04.pdf
+
+- How to win at Othello? Part 1 – Strategy basics, stable discs and mobility  
+https://bonaludo.com/2017/01/04/how-to-win-at-othello-part-1-strategy-basics-stable-discs-and-mobility/
