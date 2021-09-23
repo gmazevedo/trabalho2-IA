@@ -11,7 +11,7 @@ bd = {}
 # Voce pode criar funcoes auxiliares neste arquivo
 # e tambem modulos auxiliares neste pacote.
 #
-# Nao esqueca de renomear 'your_agent' com o nome
+# Nao esqueca de renomear 'frank' com o nome
 # do seu agente.
 
 INFINITO_POSITIVO = float('inf')

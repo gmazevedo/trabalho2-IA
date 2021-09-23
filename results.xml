@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <othello-match>
 	<timing start="Wed Sep 15 18:54:33 2021" finish="Wed Sep 15 18:55:00 2021"/>
-	<player1 directory="your_agent" color="B" result="win" score="51"/>
+	<player1 directory="frank" color="B" result="win" score="51"/>
 	<player2 directory="randomplayer" color="W" result="loss" score="13"/>
 	<moves>
 		<move coord="3,2" color="B"/>

@@ -2,7 +2,7 @@ import unittest
 
 import board
 import timer
-import your_agent.agent as agent  # change your_agent by your agent module
+import frank.agent as agent  # change frank by your agent module
 
 
 class TestAgent(unittest.TestCase):
