@@ -2,9 +2,9 @@
 O objetivo do deste trabalho é explorar a implementação de poda alfa-beta (com algoritmo Minimax) a partir da  implementação de um agente capaz de jogar Othello (também conhecido como Reversi).
 
 ## Integrantes do grupo
-- Gessica Franciéle Mendonça Azevedo - 302865  - Turma A  
-- Rafael Oleques Nunes - 309114 - Turma B
-- Tatiane Sequerra Stivelman - 243681  - Turma B
+- Gessica Franciéle Mendonça Azevedo - Turma A  
+- Rafael Oleques Nunes - Turma B
+- Tatiane Sequerra Stivelman - Turma B
 
 ## Descrição do algoritmo - funções
 > Para fazer a avaliação do próximo movimento foram usadas as seguintes heurísticas:
